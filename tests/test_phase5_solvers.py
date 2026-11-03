@@ -62,7 +62,7 @@ class CorporateClicheTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("gcc"), "GCC required")
     def test_local_admin_session(self):
-        result = corporate_cliche.run_local(self.source_file)
+        result = corporate_cliche.run_local(self.source_file, DATA / "corporate_email_server.elf.b64")
         self.assertIn("Admin login successful", result)
         self.assertIn("CTF_ADMIN_SESSION_REACHED", result)
 
