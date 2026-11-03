@@ -6,6 +6,7 @@ commands. Only execute the bundled public CTF fixture or files you trust.
 """
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -51,12 +52,18 @@ def solve(key_path: Path, lock_path: Path, executable: str = "vim") -> str:
                 result.stderr.decode(errors="replace")[-1000:]
             )
         value = output.read_text(encoding="utf-8").strip()
-        if not value.startswith("DUCTF{") or not value.endswith("}"):
-            raise ValueError(f"Unexpected macro output from register z: {value!r}; "
+        # The Vim macro can yank a larger paragraph around the embedded flag;
+        # inspect the genuine register contents rather than assume it is only
+        # a flag string. Do not insert any expected answer into solver logic.
+        matches = re.findall(r"DUCTF\\{[^{}\\r\\n]{1,200}\\}", value)
+        if not matches:
+            raise ValueError(f"No DUCTF flag found in register z: {value!r}; "
                              f"vim exited with {result.returncode}")
+        if len(set(matches)) != 1:
+            raise ValueError(f"Multiple distinct candidate flags: {matches!r}")
         if result.returncode:
             raise RuntimeError(f"Vim macro exited with status {result.returncode}")
-        return value
+        return matches[0]
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
