@@ -126,3 +126,36 @@ both recovered flags.
 **Cumulative status:** eight unique challenge implementations, of which seven
 have recovered official flags locally. Mini-me has verified offline key
 recovery only; remote flag receipt was not asserted.
+
+
+## Phase 5: bilingual (reversing) and corporate-cliche (pwn)
+
+Two **new** challenge IDs are added; the existing eight solvers and four
+independent test modules remain unchanged. All phase-5 regression cases are
+in `tests/test_phase5_solvers.py` and use original CTF fixtures.
+
+| Challenge | Solver | Validation scope |
+| --- | --- | --- |
+| bilingual | Infer positional password constraints from C helper, recover its RC4 crib with 26^3 enumeration, search final digit candidates, decrypt original Base64/RC4 flag | Full flag output |
+| corporate-cliche | Parse admin credential from original C source, craft a null-terminated overflow payload, execute the original published Linux ELF in a local temporary directory | Admin shell/session marker (not hosted flag) |
+
+The published bilingual Python challenge contains embedded native code. Our
+solver does not load or run the embedded library; it uses static data only.
+
+The corporate challenge specifically depends on the **stack layout of the
+original compiled binary**. Compiling its C code with a modern GCC can change
+local-variable ordering; this is why the regression fixture
+`data/corporate_email_server.elf.b64` holds the byte-identical
+original upstream ELF encoded as Base64. The local replay executes only that
+trusted public CTF sample. It runs a harmless shell confirmation command and
+does not connect to remote hosts or claim hosted flag retrieval.
+
+```bash
+python -m solvers.bilingual data/bilingual_published.py data/bilingual_helper.cpp
+python -m solvers.corporate_cliche data/corporate_email_server.c data/corporate_email_server.elf.b64
+python -m unittest discover -s tests -v
+```
+
+**Requirements:** Python 3.10+, a Linux runner that can execute the original
+x86-64 ELF, OpenSSL/Vim/GCC and the cryptography dependency already used in CI.
+The bilingual solver itself uses only Python standard library.
