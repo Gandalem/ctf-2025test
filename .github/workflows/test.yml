@@ -17,3 +17,5 @@ jobs:
         run: |
           python -m solvers.dtmf data/dtmf.txt
           python -m solvers.caterpillar data/caterpillar_output.txt
+          python -m solvers.zeus data/zeus_main.c
+          python -m solvers.skippy data/skippy_main.c
