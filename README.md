@@ -89,3 +89,40 @@ a verified intermediate result, not proof of live flag retrieval.
 
 Progress after this phase: six unique challenge solvers, three independent
 test modules, with all tests run by the same GitHub Actions job.
+
+
+## Phase 4: Rocky and SwiftPasswordManager: LoadMe
+
+These are two *new*, non-duplicate challenge implementations. Previously
+committed six challenge solvers and three test modules remain intact.
+The additional tests live in `tests/test_phase4_solvers.py`.
+
+| Challenge | Reproduced operation | Original fixture | Validation |
+| --- | --- | --- | --- |
+| Rocky | MD5 candidate lookup then AES-128-CBC with reversed password IV | `data/rocky_main.c` | Official flag from plaintext |
+| SwiftPasswordManager: LoadMe | Parse SPM1 binary, iterate SHA-256 0xAAAA times, AES-256-GCM, deserialize login records | `data/loadme_passwords.spm.b64` | Official flag in decrypted login data |
+
+The SPM1 fixture is the original 210-byte binary archived as base64 UTF-8 text
+so it can be inspected in GitHub and decoded byte-for-byte. The password
+`DUCTF2025!` comes from the challenge statement. Rocky's solver
+does not contain the password: it tests an external candidate list and must
+raise an error if no candidate matches the original MD5 hash.
+
+Run using Python 3.10+, OpenSSL CLI and the `cryptography` package:
+
+```bash
+python -m pip install 'cryptography>=42,<50'
+python -m solvers.rocky data/rocky_main.c data/rocky_candidates.txt
+python -m solvers.loadme data/loadme_passwords.spm.b64
+python -m unittest discover -s tests -v
+```
+
+The `rocky_candidates.txt` list is a small known-case regression fixture;
+a general password-search attack needs a suitable dictionary and has no
+guaranteed completion time. No expected flag is returned from the solver
+implementations. The phase-4 CI run passed **33 of 33 tests** and printed
+both recovered flags.
+
+**Cumulative status:** eight unique challenge implementations, of which seven
+have recovered official flags locally. Mini-me has verified offline key
+recovery only; remote flag receipt was not asserted.
