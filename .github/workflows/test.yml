@@ -25,3 +25,5 @@ jobs:
           python -m solvers.vimfu data/vimfu_key.txt data/vimfu_lock.txt
           python -m solvers.rocky data/rocky_main.c data/rocky_candidates.txt
           python -m solvers.loadme data/loadme_passwords.spm.b64
+          python -m solvers.bilingual data/bilingual_published.py data/bilingual_helper.cpp
+          python -m solvers.corporate_cliche data/corporate_email_server.c
