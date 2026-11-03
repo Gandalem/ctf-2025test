@@ -11,6 +11,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install AES-GCM test dependency
+        run: python -m pip install 'cryptography>=42,<50'
       - name: Validate algorithm outputs
         run: python -m unittest discover -s tests -v
       - name: Print recovered flags
@@ -21,3 +23,5 @@ jobs:
           python -m solvers.skippy data/skippy_main.c
           python -m solvers.mini_me data/mini_me_sourcemap.json
           python -m solvers.vimfu data/vimfu_key.txt data/vimfu_lock.txt
+          python -m solvers.rocky data/rocky_main.c data/rocky_candidates.txt
+          python -m solvers.loadme data/loadme_passwords.spm.b64
