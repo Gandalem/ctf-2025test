@@ -59,3 +59,33 @@ documentation, not in the solver logic.
 
 The project currently includes four implemented unique challenge solvers
 (DTMF, caterpillar, Zeus, Skippy), with two separate Python test files.
+
+
+## Phase 3: two additional non-duplicate challenge implementations
+
+New challenge solvers are implemented independently of prior four and use
+the same `data/` directory for original source fixtures. Original tests
+are unchanged; new tests are isolated in `tests/test_phase3_solvers.py`.
+
+| Challenge | Category | Reproducible operation | Result |
+| --- | --- | --- | --- |
+| mini-me | web | Reverse static XOR in source map to recover X-API-Key | Key recovered; remote flag not requested |
+| As per my last email... (vimfu) | misc | Execute supplied Vim macro over supplied original lock and parse register z | DUCTF flag recovered |
+
+```bash
+python -m solvers.mini_me data/mini_me_sourcemap.json
+python -m solvers.vimfu data/vimfu_key.txt data/vimfu_lock.txt
+python -m unittest discover -s tests -v
+```
+
+**Security warning:** the Vim macro runner executes Vim commands. Only use
+trusted CTF fixtures. The CI uses the original published DUCTF key/lock data,
+and no third-party packages. It requires installed Vim.
+
+The mini-me exercise proves recovery of the original admin API key from
+a source map. The published flag is guarded by the server-side endpoint, which
+this standalone offline algorithm does *not* request; treat recovered key as
+a verified intermediate result, not proof of live flag retrieval.
+
+Progress after this phase: six unique challenge solvers, three independent
+test modules, with all tests run by the same GitHub Actions job.
