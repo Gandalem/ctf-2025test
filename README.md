@@ -31,3 +31,31 @@ No third-party packages required.
   the solver return logic. Tests check correctness for these known examples,
   not unseen CTF problems.
 - Original challenge files and problem metadata are available upstream.
+
+
+## Newly added non-duplicate challenges
+
+The original solvers and fixture files remain unchanged. The next two challenges
+have **separate implementations and tests** in
+`tests/test_additional_solvers.py`.
+
+| Challenge | Type | Algorithm | Input fixture |
+| --- | --- | --- | --- |
+| zeus | beginner/rev | Repeating-key XOR decoded from C source | `data/zeus_main.c` |
+| skippy | rev/easy | Restore shifted AES key/IV and decrypt AES-128-CBC | `data/skippy_main.c` |
+
+Run all previous and new regression tests with the same single command:
+
+```bash
+python -m unittest discover -s tests -v
+python -m solvers.zeus data/zeus_main.c
+python -m solvers.skippy data/skippy_main.c
+```
+
+Requirements: Python 3.10+ and the OpenSSL command for Skippy. The CI runner
+provides OpenSSL. No challenge binary is executed: both new solvers parse data
+from source fixtures. Accepted answers live only in regression tests and
+documentation, not in the solver logic.
+
+The project currently includes four implemented unique challenge solvers
+(DTMF, caterpillar, Zeus, Skippy), with two separate Python test files.
