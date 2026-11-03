@@ -51,7 +51,7 @@ def run_local(source_file: Path, binary_fixture: Path) -> str:
     # Use the published challenge's ORIGINAL compiled ELF. Newer GCC versions
     # can reverse the stack layout of adjacent local variables, breaking the
     # intended educational example even with the same source code.
-    data = base64.b64decode(binary_fixture.read_text(encoding="ascii"), validate=True)
+    data = base64.b64decode(binary_fixture.read_text(encoding="ascii").strip(), validate=True)
     if data[:4] != b"\x7fELF":
         raise ValueError("Original binary fixture is not an ELF file")
     with tempfile.TemporaryDirectory(prefix="ctf-corporate-") as temp:
