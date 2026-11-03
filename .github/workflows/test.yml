@@ -19,3 +19,5 @@ jobs:
           python -m solvers.caterpillar data/caterpillar_output.txt
           python -m solvers.zeus data/zeus_main.c
           python -m solvers.skippy data/skippy_main.c
+          python -m solvers.mini_me data/mini_me_sourcemap.json
+          python -m solvers.vimfu data/vimfu_key.txt data/vimfu_lock.txt
