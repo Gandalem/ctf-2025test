@@ -520,7 +520,12 @@ unchanged. New regressions are in `tests/test_phase16_solvers.py` and
 | More Request Handling | Express 5 passes the `req` object to a Handlebars string template; nested `with` helpers and app.set/EventEmitter.listenerCount build a callable Function constructor gadget. | Original published Express 5 source on a local ephemeral port. A harmless marker throws when code evaluation is reached. No external targets or hosted Flag retrieval. |
 
 Tests install exactly the Express major versions indicated in the original
-Dockerfiles, along with Handlebars. The Node test adapter extracts the
+Dockerfiles. For the Express 4 AST case, Handlebars is pinned to **4.7.8**
+(the vulnerable version available when the 2025 challenge shipped). Modern
+Handlebars **4.7.9+** added validation for the NumberLiteral AST value and
+blocks this original specific payload; the regression deliberately installs
+4.7.8 only within the isolated challenge fixture to reproduce 2025 behavior.
+Do not use this vulnerable version in a production application. The Node test adapter extracts the
 *original app.js* source from each Dockerfile and replaces only
 `app.listen(8000,...)` with an export so it can bind to
 `127.0.0.1` on an ephemeral port. A successful browser/request result
@@ -528,7 +533,7 @@ must include the unique benign marker in a 500 error response; 200 responses
 to ordinary templates serve as negative controls.
 
 ```bash
-npm install --prefix data/request_handling 'express@4' handlebars
+npm install --prefix data/request_handling 'express@4' 'handlebars@4.7.8'
 npm install --prefix data/more_request_handling 'express@5' handlebars
 python -m unittest discover -s tests -v
 python -m solvers.request_handling data/request_handling/Dockerfile
