@@ -435,3 +435,38 @@ the original disk image separately if they want to extract a hosted flag.
 
 The two challenge IDs bring the project to **26 unique implementations**.
 Count Flag recovery separately from locally verified puzzle mechanics.
+
+## Phase 14: BeepBeep and Mutant
+
+Two more **distinct challenges**, leaving all 26 prior solvers and thirteen
+previous Python test modules unchanged. New tests are in
+`tests/test_phase14_solvers.py`.
+
+| Challenge | Algorithm | Scope |
+| --- | --- | --- |
+| misc/beepbeep | FFT dominant-tone estimation using 75-ms WAV frames; infer the 26-letter frequency alphabet from the initial `abcdefghijklmnopqrstuvwxyz` preamble; decode subsequent tones; parse spoken `ductfopenbracket...closebracket`. | CI downloads the actual upstream 4.1 MB WAV and verifies the **official published Flag** from audio samples without embedding an expected answer in the solver. |
+| web/mutant | Use the original JavaScript from the public challenge in a local Chromium browser; submit MathML/form/style mutation markup and verify it reintroduces an `onerror` handler during HTML reserialization. | Actual browser proof of benign `alert(1)` marker execution only. A normal image event-handler payload is sanitized as a negative control. **No flag cookie, remote bot, request bin, or exfiltration is used.** |
+
+Reproduction (Python 3.12+, NumPy and Playwright Chromium):
+
+```bash
+python -m pip install 'numpy>=1.26,<3' 'playwright>=1.52,<2'
+python -m playwright install chromium
+curl -fsSL https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/beepbeep/src/beepbeep.wav -o /tmp/ductf-beepbeep.wav
+python -m solvers.beepbeep /tmp/ductf-beepbeep.wav
+python -m solvers.mutant data/mutant/main.js data/mutant/index.html
+python -m unittest discover -s tests -v
+```
+
+The original unmodified Mutant static JS, HTML template, and Flask source
+are retained under `data/mutant/`. The original audio is downloaded in CI
+rather than committed, while tests also generate their own synthesized tones
+as independent positive and negative cases. The browser fixture is a
+disposable local `file://` page with HTTP(S) route interception; it performs
+no network operations. The exercise only runs against the published CTF
+source and rejects samples attempting network callbacks or cookie access.
+
+Cumulative after this phase: **28 distinct problem implementations**,
+including actual audio Flag reconstruction and a local-only browser DOM
+mutation proof. Count successful hosted Flag retrieval separately from
+locally proven vulnerability mechanics.

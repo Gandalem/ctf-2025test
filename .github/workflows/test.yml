@@ -33,9 +33,18 @@ jobs:
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/fishy_website/publish/capture.pcapng -o /tmp/ductf-fishy-capture.pcapng
           test "$(wc -c </tmp/ductf-fishy-capture.pcapng)" -gt 1000000
+      - name: Install audio and browser regression dependencies
+        run: |
+          python -m pip install 'numpy>=1.26,<3' 'playwright>=1.52,<2'
+          python -m playwright install --with-deps chromium
+      - name: Download original public DUCTF BeepBeep WAV
+        run: |
+          curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/beepbeep/src/beepbeep.wav -o /tmp/ductf-beepbeep.wav
+          test "$(wc -c </tmp/ductf-beepbeep.wav)" -gt 4000000
       - name: Validate algorithm outputs
         env:
           DUCTF_FISHY_PCAP: /tmp/ductf-fishy-capture.pcapng
+          DUCTF_BEEP_WAV: /tmp/ductf-beepbeep.wav
         run: python -m unittest discover -s tests -v
       - name: Print recovered flags
         run: |
@@ -63,6 +72,8 @@ jobs:
           python -m solvers.gomail data/gomail/app/session/claims.go data/gomail/app/handlers.go
           python -m solvers.certvalidated data/certvalidated/certvalidated.py data/certvalidated/root.crt
           python -m solvers.fishy_website /tmp/ductf-fishy-capture.pcapng data/fishy_client.py
+          python -m solvers.beepbeep /tmp/ductf-beepbeep.wav
+          python -m solvers.mutant data/mutant/main.js data/mutant/index.html
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
