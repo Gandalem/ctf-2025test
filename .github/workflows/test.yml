@@ -19,6 +19,14 @@ jobs:
         run: python -m pip install 'pycryptodome>=3.20,<4'
       - name: Install original Stonks Flask dependency
         run: python -m pip install 'Flask==3.1.1'
+      - name: Install CMS challenge verifier
+        run: python -m pip install 'endesive==2.18.5' 'asn1crypto>=1.5,<2'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.4'
+      - name: Run original Gomail Go integration tests
+        working-directory: data/gomail/app
+        run: go test -v ./...
       - name: Validate algorithm outputs
         run: python -m unittest discover -s tests -v
       - name: Print recovered flags
@@ -44,6 +52,8 @@ jobs:
           python -m solvers.stonks data/stonks/stonks.py data/stonks/templates
           python -m solvers.speak_friend_enter data/speak_friend_server.py
           python -m solvers.dualzip data/dualzip_app.py /tmp/ctf-dualzip-synthetic
+          python -m solvers.gomail data/gomail/app/session/claims.go data/gomail/app/handlers.go
+          python -m solvers.certvalidated data/certvalidated/certvalidated.py data/certvalidated/root.crt
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png

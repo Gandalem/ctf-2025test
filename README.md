@@ -364,3 +364,43 @@ local environment with the challenge's unzip and 7z versions.
 
 Cumulative: **22 distinct challenge implementations**; **12 original Flag
 recoveries** and **10 partially proven or local-only reproductions**.
+
+## Phase 12: Gomail and Certvalidated (original implementation verified)
+
+Two additional, non-duplicate challenge IDs, retaining the 22 previous
+solvers and 11 earlier Python test modules. Both implementations reuse
+original upstream source inputs under `data/`, with standalone
+`tests/test_phase12_solvers.py` containing 13 new Python regression tests.
+
+| Challenge | Reconstructed algorithm | Strongest reproducible result |
+| --- | --- | --- |
+| web/gomail | Exploit `uint16(len(email))` truncation in custom Go claims serialization. Write full oversized email so the first eight overflow bytes masquerade as Expiry and the ninth as IsAdmin = true. | **Real original Gin login endpoint**, original server-generated HMAC-signed token and **real original /emails endpoint** successfully disclose a synthetic local admin-mail marker. Validated by separate Go integration tests (no real hosted flag). |
+| crypto/certvalidated | Build legitimate CMS SignedData with fresh RSA key; substitute public root CA certificate signature bytes into generated leaf certificate's signatureValue without actually signing its TBSCertificate with root. | Original `endesive==2.18.5` verifier invoked with original published root.crt and challenge message returns **(hashok, signatureok, certok) = (True, True, True)**. No hosted flag. |
+
+### Run
+
+```bash
+python -m pip install 'cryptography>=42,<50' 'asn1crypto>=1.5,<2' 'endesive==2.18.5'
+python -m solvers.gomail data/gomail/app/session/claims.go data/gomail/app/handlers.go
+python -m solvers.certvalidated data/certvalidated/certvalidated.py data/certvalidated/root.crt
+python -m unittest discover -s tests -v
+cd data/gomail/app && go test -v ./...
+```
+
+The Go tests are executed directly on the original challenge's Go code:
+`phase12_integration_test.go` exercises actual Gin /login, signed session
+decode, and /emails with a **synthetic** admin mailbox marker; a separate
+negative test establishes that an ordinary guest cannot access admin mail.
+The Python Gomail solver models the vulnerable original serialization to
+derive the overflowing email independent of the random HMAC secret.
+
+The CMS forged certificate is *not* legitimately issued by the root CA.
+The fact that the challenge verifier returns three true results demonstrates
+the certificate-validation flaw of this particular `endesive` version; it
+must not be taken as a universally trusted or valid X.509 chain.
+
+CI validation: **149/149 Python unit tests** (old 136 + new 13), and
+the independent Go integration tests passed. This brings the repository
+to **24 distinct challenge implementations**: 12 published Flag recoveries
+and 12 offline, local-only, or partial verifications, without claiming
+the hosted flags in these last two challenges.
