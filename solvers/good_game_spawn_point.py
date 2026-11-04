@@ -98,7 +98,7 @@ def decrypt_observation(k: int, p: int, q: int, public_point,
     if not 0 < k < n or n % ORDER == 0:
         raise ValueError("Invalid scalar or modulus")
     alpha = paillier_decrypt(mta_cipher, p, q)
-    numerator = public_point * (k % ORDER) + beta_point - GENERATOR * (alpha % ORDER)
+    numerator = public_point * (k % ORDER) + beta_point + (-(GENERATOR * (alpha % ORDER)))
     target = numerator * pow(n, -1, ORDER)
     quotient = bounded_log(target, max_quotient)
     if quotient is None:
