@@ -641,3 +641,33 @@ Cumulative distinct implementations: **38 / 63**. Original Flag
 recoveries remain **14**; other **24** are locally reproduced or
 partially analyzed. Do not report the synthetic markers as competition
 Flags or count them as original Flag recoveries.
+
+## Phase 20: SH-RSA and BLAST
+
+Two distinct, previously unimplemented DownUnderCTF 2025 challenge IDs:
+`crypto/sh-rsa` and `pwn/blast`. The earlier 38 solver implementations
+and 19 earlier Python unittest modules remain unchanged. New tests are
+isolated in `tests/test_phase20_solvers.py` with **20 independent cases**.
+
+| Challenge | Algorithm | Actual validation boundary |
+| --- | --- | --- |
+| SH-RSA | Reproduce original 8-byte SHAKE128-based hash, prefix-only RSA verification, and multiplicative combination of signed hashes; solve a small exact subset-product instance with meet-in-the-middle. | Original public Python challenge source and official solver strategy preserved and inspected. RSA arithmetic is tested with synthetic keys. **The full 92-signature, 64-bit prefix subset-product attack and remote flag are not solved.** |
+| BLAST | Reproduce original Fortran `UNSIGNED(KIND=UINT8)` modular-256 matrix multiplication, column-major I/O, and matrix inversion using odd (unit) pivots over `Z/256Z`. | Original Fortran source and public Sage exploit are preserved. A synthetic invertible **16×16 matrix** recovers its original vector exactly. **No Fortran stack exploit, ASLR bypass or hosted flag recovery.** |
+
+Original upstream source fixtures: `data/sh_rsa/original_challenge.py`,
+`data/sh_rsa/original_solver.py`, `data/blast/original_main.f90`,
+and `data/blast/original_solver.py`. The original solver scripts
+are retained as **text fixtures only**, never executed by CI. The
+new solver modules use Python standard library only; they neither
+connect to a challenge endpoint nor spawn a shell.
+
+```bash
+python -m solvers.sh_rsa data/sh_rsa/original_challenge.py
+python -m solvers.blast data/blast/original_main.f90
+python -m unittest discover -s tests -v
+```
+
+Total challenge coverage after this phase: **40 / 63 distinct challenge IDs**.
+The number of original Flag recoveries remains **14**; the other **26**
+are local/partial analytical reproductions. Do not count synthetic
+key/vector test outcomes as complete original challenges.
