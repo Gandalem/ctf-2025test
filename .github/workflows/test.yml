@@ -41,6 +41,13 @@ jobs:
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/beepbeep/src/beepbeep.wav -o /tmp/ductf-beepbeep.wav
           test "$(wc -c </tmp/ductf-beepbeep.wav)" -gt 4000000
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install original Express 4 and Express 5 challenge packages
+        run: |
+          npm install --prefix data/request_handling --no-audit --no-fund 'express@4' handlebars
+          npm install --prefix data/more_request_handling --no-audit --no-fund 'express@5' handlebars
       - name: Validate algorithm outputs
         env:
           DUCTF_FISHY_PCAP: /tmp/ductf-fishy-capture.pcapng
@@ -76,6 +83,8 @@ jobs:
           python -m solvers.mutant data/mutant/main.js data/mutant/index.html
           python -m solvers.good_game_spawn_point data/good_game_spawn_point/chal.py
           python -m solvers.file_upload data/file_upload/appupload.py data/file_upload/appview.py data/file_upload/templates
+          python -m solvers.request_handling data/request_handling/Dockerfile
+          python -m solvers.more_request_handling data/more_request_handling/Dockerfile
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
