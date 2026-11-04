@@ -37,3 +37,5 @@ jobs:
           python -m solvers.ecb_a_tron data/ecb_a_tron_main.py
           python -m solvers.horoscopes data/horoscopes
           python -m solvers.yet_another_login data/yet_another_login_chall.py
+          python -m solvers.godot_tiles data/godot_tile_map_layer.gd
+          python -m solvers.secure_email_attachments data/secure_email_attachments_main.go
