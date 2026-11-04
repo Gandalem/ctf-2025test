@@ -612,3 +612,32 @@ Cumulative implementation coverage after phase 18: **36 / 63 unique
 challenge IDs** (14 published original Flag recoveries, 22 partial/local
 verifications). The remaining original challenge IDs have no counted
 implementation.
+
+## Phase 19: Sodium and M.A.R.Y Had a Little Lambda
+
+Two additional, non-duplicate DUCTF 2025 problems. All 36 previously
+implemented solver modules and 18 older Python unittest modules are
+preserved. The new independent regression suite is
+`tests/test_phase19_solvers.py`, with **21 additional tests**. The
+existing CI's `unittest discover` runs all old and new cases.
+
+| Challenge | Algorithm | Honest result |
+| --- | --- | --- |
+| web/sodium | Parse original RPC server source using Python AST. Extract and execute exactly its original `Config` class and `build_stats_page` method in a synthetic in-memory environment. Reproduce the log-inclusion + second `str.format(config=config)` pass that evaluates a malicious format field against `config.__init__.__globals__`. | Original unmodified vulnerable formatter yields `DUCTF{SYNTHETIC_SODIUM_MARKER}` from synthetic globals. The separate CVE-2023-24329 URL-scheme parser, Pound 4.15 / h11 parser confusion, and host-side allowlist operations are source-audited only. **No chained proxy exploit or actual Flag retrieval.** |
+| misc/mary_had_a_little_lambda | Parse original Terraform resource and IAM policy-document blocks. Derive user-permission discovery -> Lambda role trust -> tagged SSM GetParameter privileges; test with a synthetic resource/tag permission model. | Original trust and role statements inspected. User is not directly allowed to read SSM; the Lambda role's resource-tag-conditioned SSM permission combined with the role trust relationship yields a hypothetical role-assumption path. **No AWS account access, real credentials, AssumeRole or Flag decryption.** |
+
+Original upstream files live under `data/sodium/` and
+`data/mary_lambda/`. Tests create synthetic markers and never use
+published login secrets. These are offline reproductions of relevant
+mechanics, not complete original challenge solutions.
+
+```bash
+python -m solvers.sodium data/sodium/rpc_server.py data/sodium/customer_routes.py data/sodium/pound.cfg data/sodium/Dockerfile
+python -m solvers.mary_lambda data/mary_lambda/main.tf
+python -m unittest discover -s tests -v
+```
+
+Cumulative distinct implementations: **38 / 63**. Original Flag
+recoveries remain **14**; other **24** are locally reproduced or
+partially analyzed. Do not report the synthetic markers as competition
+Flags or count them as original Flag recoveries.
