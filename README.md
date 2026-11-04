@@ -671,3 +671,32 @@ Total challenge coverage after this phase: **40 / 63 distinct challenge IDs**.
 The number of original Flag recoveries remains **14**; the other **26**
 are local/partial analytical reproductions. Do not count synthetic
 key/vector test outcomes as complete original challenges.
+
+## Phase 21: fakeobj.py and cheap logs
+
+Two further **distinct** DUCTF 2025 challenges: `pwn/fakeobj.py`
+and `crypto/cheap_logs`. All 40 previous solver modules and 20 older
+Python unittest modules are unchanged. New, isolated regression tests
+are in `tests/test_phase21_solvers.py` (**23 cases**).
+
+| Challenge | Implemented mechanics | Actual validation boundary |
+| --- | --- | --- |
+| pwn/fakeobj.py | Decode the original 72-byte CPython object header overwrite; reconstruct `ob_type` and the fake `PyTypeObject.tp_repr` pointer at offset 88; demonstrate the one-byte refcount increment as a separate byte-level transformation. | Original source and author exploit retained as **unexecuted fixtures**. Tests operate only on a synthetic address-space bytearray and an inert mock callback pointer. **No actual CPython memory corruption, shell execution or hosted Flag retrieval.** |
+| crypto/cheap_logs | Examine GMP `mpz_roinit_n` on a malloc buffer that is later freed; reconstruct the author's unknown-ASLR and one-byte affine exponent model; implement bounded meet-in-the-middle multiplicative-group recovery. | Original C source and author solver retained as **unexecuted fixtures**. A small synthetic discrete log recovers two ASLR slices and a byte. **No live GMP heap exploitation, full 36-bit search or hosted Flag retrieval.** |
+
+Safe local validation using the existing standard-library-only runners:
+
+```bash
+python -m solvers.fakeobj data/fakeobj/original_fakeobj.py data/fakeobj/original_solver.py
+python -m solvers.cheap_logs data/cheap_logs/original_chall.c data/cheap_logs/original_solver.py
+python -m unittest discover -s tests -v
+```
+
+The repository's existing GitHub Actions still runs the previous Go,
+Chromium, CMS, PCAP and WAV tests. No existing test was removed or
+weakened. The two new source fixtures are public CTF materials, not
+executable dependencies. Results are **algorithm/layout validation only**;
+they do not mean these complete original puzzles are solved.
+
+Cumulative coverage: **42 / 63 distinct challenge IDs**, comprising
+**14 original Flag recoveries** and **28 partial/local-only reproductions**.

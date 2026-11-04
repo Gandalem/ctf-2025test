@@ -92,6 +92,8 @@ jobs:
           python -m solvers.mary_lambda data/mary_lambda/main.tf
           python -m solvers.sh_rsa data/sh_rsa/original_challenge.py
           python -m solvers.blast data/blast/original_main.f90
+          python -m solvers.fakeobj data/fakeobj/original_fakeobj.py data/fakeobj/original_solver.py
+          python -m solvers.cheap_logs data/cheap_logs/original_chall.c data/cheap_logs/original_solver.py
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
