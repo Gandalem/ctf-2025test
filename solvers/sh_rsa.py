@@ -107,7 +107,7 @@ def local_demo(source: str) -> dict:
     validate_source(source)
     # Small synthetic RSA private key, original unmodified H/sign/verify
     # formula; no original hosted challenge secrets.
-    p, q, exponent = 1000000007, 1000000009, 65537
+    p, q, exponent = 32416190071, 32416187567, 65537
     n = p * q
     d = pow(exponent, -1, (p - 1) * (q - 1))
     message = b"offline-test"
