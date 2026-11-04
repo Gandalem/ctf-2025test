@@ -700,3 +700,39 @@ they do not mean these complete original puzzles are solved.
 
 Cumulative coverage: **42 / 63 distinct challenge IDs**, comprising
 **14 original Flag recoveries** and **28 partial/local-only reproductions**.
+
+## Phase 22 (rewritten): Our Lonely Dog and Trusted
+
+This phase was **rewritten from the original public author write-ups**,
+not copied from unverified example assumptions. Existing 42 solvers and
+21 previous Python unittest suites remain unchanged. New test module:
+`tests/test_phase22_solvers.py`, containing **21 tests**, discovered
+by the same CI `unittest discover` command as every earlier test.
+
+| Challenge | Code and algorithm | What the tests prove |
+| --- | --- | --- |
+| beginner/our_lonely_dog | Parse a saved RFC 5322 or nested MIME `.eml` message and read **only** the custom `X-FLAG` header. Validate exactly one unique flag-shaped value, reject body-only matches and ambiguous values. | Original author write-up identifies `e-dog@downunderctf.com`, the automated email reply and custom `X-FLAG` header. Multiple synthetic email fixtures verify the Python standard-library parser, including nested RFC 822 attachments. **No original auto-response email is bundled**, so no real email flag recovery claimed. |
+| beginner/trusted | Read the original public Trusted author write-up for **port 30063**, the Gemini authentication challenge phrase and response. Reuse the existing `solvers.horoscopes` Gemini response and request code; construct a Gemini request with correct URL encoding of `+`, `=`, `%`, and spaces; parse a saved status-20 Flag response. | Original write-up is retained, including the anomalous raw `1111` input shown in its byte transcript; both standards-conforming status `11` and the archived `1111` variant are recognized separately. **No historical Gemini admin service contacted, no real flag response available.** |
+
+The source files are copied from the public Upstream DUCTF 2025 archive
+under `data/our_lonely_dog/` and `data/trusted/`, including README,
+hints, challenge.yaml and original write-ups. The two `challenge.yaml`
+files contain the **published expected flags**, but the solver modules
+and their regression tests **never load those YAML values** or hard-code
+the original flags as recovered output.
+
+```bash
+python -m unittest discover -s tests -v
+# If you have an authorized original raw auto-reply email:
+python -m solvers.our_lonely_dog /path/to/e-dog-autoreply.eml
+# If you have saved admin-capsule request and response:
+python -m solvers.trusted data/trusted/original_writeup.md /path/to/input-response.bin /path/to/success-response.bin
+```
+
+The Trusted implementation does **not** bypass a live service's TLS
+configuration or transmit any real credentials. The original challenge
+is historical and the write-up is the only verified record here.
+
+Cumulative: **44 / 63 unique challenge implementations**. Actually
+recovered flags from original artifact data remain **14**; the remaining
+**30** are partial/local protocol, algorithm or model verifications.
