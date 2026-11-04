@@ -78,7 +78,8 @@ class RequestHandlingTests(unittest.TestCase):
 
     def test_original_express4_ast_marker_executes(self):
         status, body = original_app_response("ast", ast.query_string())
-        self.assertTrue(ast.check_local_result(status, body))
+        self.assertEqual(status, 500, f"Unexpected Express 4 status/body: {status} {body[:1200]}")
+        self.assertIn(ast.MARKER, body, f"Express 4 AST diagnostic: {body[:1800]}")
 
 
 class MoreRequestHandlingTests(unittest.TestCase):
