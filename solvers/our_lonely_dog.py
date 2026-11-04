@@ -11,7 +11,7 @@ from email import policy
 from email.parser import BytesParser
 from pathlib import Path
 
-FLAG = re.compile(r"DUCTF\{[^{}\r\n]{1,200}\}")
+FLAG = re.compile(r"DUCTF\{[^\s{}\r\n]{1,200}\}")
 ADDRESS = "e-dog@downunderctf.com"
 MAX_EMAIL_BYTES = 5_000_000
 
