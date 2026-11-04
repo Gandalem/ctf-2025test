@@ -5,6 +5,7 @@ PHP helper functions through a local PHP CLI interpreter. No MySQL or remote
 HTTP requests are made; a synthetic HMAC key is used.
 """
 import argparse
+import base64
 import hashlib
 import hmac
 import json
@@ -52,6 +53,8 @@ def extract_php_function(source: str, name: str) -> str:
 def php_local_probe(api_source: str, route: str, field: str, local_key: str = TEST_KEY) -> dict:
     """Execute extracted original PHP helpers with benign local inputs."""
     code = (
+        '$argv[1] = base64_decode($argv[1], true);\n'
+        '$argv[2] = base64_decode($argv[2], true);\n'
         'define("APP_SECRET_KEY", $argv[3]);\n'
         + extract_php_function(api_source, "db_escape_col")
         + "\n" + extract_php_function(api_source, "api_sig_gen")
@@ -59,7 +62,8 @@ def php_local_probe(api_source: str, route: str, field: str, local_key: str = TE
         ' "signature" => api_sig_gen($argv[1])]);'
     )
     result = subprocess.run(
-        ["php", "-r", code, route, field, local_key],
+        ["php", "-r", code, base64.b64encode(route.encode()).decode(),
+         base64.b64encode(field.encode()).decode(), local_key],
         capture_output=True, text=True, timeout=10, check=False,
     )
     if result.returncode:
