@@ -44,3 +44,8 @@ jobs:
           python -m solvers.stonks data/stonks/stonks.py data/stonks/templates
           python -m solvers.speak_friend_enter data/speak_friend_server.py
           python -m solvers.dualzip data/dualzip_app.py /tmp/ctf-dualzip-synthetic
+      - name: Reconstruct original public Scrapbooking challenge image
+        run: |
+          curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
+          python -m solvers.scrapbooking /tmp/ductf-warped.png /tmp/ductf-scrapbooking
+          python -c "from pathlib import Path; p=list(Path('/tmp/ductf-scrapbooking').glob('image*.png')); assert len(p)==3, len(p); print('Verified original challenge: 3 valid PNG files', [x.stat().st_size for x in p])"
