@@ -190,3 +190,32 @@ untrusted PHP challenge sources without isolation. Full cumulative count:
 12 unique implemented challenges; 9 recovered flags, and 3 verified partial or
 local exploit milestones (mini-me API key, corporate-cliche local admin
 session, philtered synthetic secret disclosure).
+
+## Phase 7: SwiftPasswordManager CrackMe and ECB-a-tron-9000
+
+This phase adds two **previously unimplemented challenge IDs** while keeping
+all six previous test modules and 12 solvers intact. New tests are isolated in
+`tests/test_phase7_solvers.py`; the original published Swift validator and
+ECB FastAPI backend are preserved in `data/`.
+
+| Challenge | Implementation | Verified outcome |
+| --- | --- | --- |
+| SwiftPasswordManager: CrackMe | Reconstruct position constraints, solve 3-variable integer systems, invert character hashes by printable-domain enumeration, and verify original 64-bit custom hashes | Full official flag reconstructed directly from Swift constraints |
+| ECB-a-tron-9000 | Chosen-plaintext ECB byte-at-a-time append-secret recovery; uses original batch limit of 256 candidates and detects exact secret length (including trailing spaces) | Synthetic local hidden secret fully recovered, including cross-block bytes; no hosted flag claimed |
+
+The ECB algorithm does **not** read or embed the official challenge flag.
+The published backend creates a random AES key and loads SECRET from an
+environment variable. It must be run against a working oracle to retrieve
+that oracle's actual SECRET. CI supplies an *independent local oracle* with
+synthetic secrets to verify the attack mechanics only.
+
+```bash
+python -m pip install 'pycryptodome>=3.20,<4'
+python -m solvers.crackme data/crackme.swift
+python -m solvers.ecb_a_tron data/ecb_a_tron_main.py
+python -m unittest discover -s tests -v
+```
+
+The extra dependency is required only for the test's local AES-ECB oracle.
+The core suffix-recovery algorithm does not require an AES library and can
+be wired to an authorized CTF service through a callback.
