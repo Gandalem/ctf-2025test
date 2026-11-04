@@ -85,6 +85,8 @@ jobs:
           python -m solvers.file_upload data/file_upload/appupload.py data/file_upload/appview.py data/file_upload/templates
           python -m solvers.request_handling data/request_handling/Dockerfile
           python -m solvers.more_request_handling data/more_request_handling/Dockerfile
+          python -m solvers.kick_the_bucket data/kick_the_bucket/s3_resource_policy.json data/kick_the_bucket/s3_presigned_url.txt
+          python -m solvers.legendary data/legendary/original_solve.sh data/legendary/api.php data/legendary/index.php data/legendary/nginx.conf
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
