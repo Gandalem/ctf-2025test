@@ -66,7 +66,7 @@ def bounded_log(point, limit: int) -> int | None:
         return 0
     step = math.isqrt(limit + 1) + 1
     baby = {}
-    cur = ECC.EccPoint.point_at_infinity()
+    cur = GENERATOR * 0
     for j in range(step):
         baby.setdefault(point_key(cur) if not cur.is_point_at_infinity()
                         else None, j)
