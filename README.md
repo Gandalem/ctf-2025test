@@ -470,3 +470,37 @@ Cumulative after this phase: **28 distinct problem implementations**,
 including actual audio Flag reconstruction and a local-only browser DOM
 mutation proof. Count successful hosted Flag retrieval separately from
 locally proven vulnerability mechanics.
+
+## Phase 15: GGSP bounded Paillier/ECC recovery and file-upload trust boundary
+
+Two additional non-duplicate public DownUnderCTF 2025 challenge IDs are
+implemented: crypto/good_game_spawn_point and web/file_upload. All existing
+28 solver implementations and 14 earlier Python test modules remain unchanged.
+The separate new suite, `tests/test_phase15_solvers.py`, reuses the existing
+`data/` directory and GitHub Actions `unittest discover` workflow.
+
+| Challenge | Reusable algorithm | Verified boundary |
+| --- | --- | --- |
+| good game spawn point | Parse original Paillier/P-256 service; choose a valid encrypted plaintext, decrypt MtA using *publicly disclosed* p/q, compute quotient EC point, bounded BSGS and interval intersection, then recover its scalar. | Actually calls the original public `mta_response` and `zk_schnorr` functions with a **16-bit synthetic key** and freshly generated random Paillier primes. This is a **bounded local mathematical demonstration**, not the full 256-bit discrete-log challenge nor a hosted Flag recovery. |
+| file-upload | Execute original Flask upload, session, dashboard and file-open routes against a temporary local upload of harmless HTML. Verify original uploader's random filename and redirected URL, and reproduce the viewer's MIME sniffing command. | Proof of local upload/redirect/content MIME behavior only. No service worker interception, remote bot visits, administrator file reading, exfiltration or hosted Flag retrieval is asserted. |
+
+Original public source fixtures are retained in
+`data/good_game_spawn_point/chal.py`,
+`data/file_upload/appupload.py`,
+`data/file_upload/appview.py` and
+`data/file_upload/templates/dashboard.html`.
+
+```bash
+python -m solvers.good_game_spawn_point data/good_game_spawn_point/chal.py
+python -m solvers.file_upload data/file_upload/appupload.py data/file_upload/appview.py data/file_upload/templates
+python -m unittest discover -s tests -v
+```
+
+Python 3.12, PyCryptodome and Flask are necessary and already installed by
+the existing workflow. Only known public challenge source files should be
+imported or executed. The file-upload demo creates disposable safe files
+under a temporary directory, never on the public service.
+
+This phase raises the cumulative count to **30 unique implemented challenge
+IDs**. The published Flag recovery count remains **14**; these two additions
+are local-only/partial progress pending complete challenge reproduction.
