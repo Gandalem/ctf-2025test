@@ -74,6 +74,8 @@ jobs:
           python -m solvers.fishy_website /tmp/ductf-fishy-capture.pcapng data/fishy_client.py
           python -m solvers.beepbeep /tmp/ductf-beepbeep.wav
           python -m solvers.mutant data/mutant/main.js data/mutant/index.html
+          python -m solvers.good_game_spawn_point data/good_game_spawn_point/chal.py
+          python -m solvers.file_upload data/file_upload/appupload.py data/file_upload/appview.py data/file_upload/templates
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
