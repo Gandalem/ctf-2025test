@@ -43,3 +43,4 @@ jobs:
           python -m solvers.secure_email_attachments data/secure_email_attachments_main.go
           python -m solvers.stonks data/stonks/stonks.py data/stonks/templates
           python -m solvers.speak_friend_enter data/speak_friend_server.py
+          python -m solvers.dualzip data/dualzip_app.py /tmp/ctf-dualzip-synthetic
