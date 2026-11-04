@@ -404,3 +404,34 @@ the independent Go integration tests passed. This brings the repository
 to **24 distinct challenge implementations**: 12 published Flag recoveries
 and 12 offline, local-only, or partial verifications, without claiming
 the hosted flags in these last two challenges.
+
+## Phase 13: Fishy Website and Network Disk Forensics
+
+Two **new** challenge IDs, not duplicates of the existing 24 solvers.
+Prior Python regression modules remain unchanged. New tests are isolated
+in `tests/test_phase13_solvers.py`.
+
+| Challenge | New algorithm | Validation scope |
+| --- | --- | --- |
+| misc/fishy-website | Parse the original public PCAPNG, reassemble TCP segments, identify simulated TLS application records, statically recover published RC4 key bytes, decrypt each independent record, extract the Base64 gzip/tar transfer and read `keys.txt`. | Original `capture.pcapng` downloaded in CI, not committed or executed; real published Flag expected directly from decrypted captured data. No C2 or PowerShell execution. |
+| beginner/for-golf-beginner (Network Disk Forensics) | Inspect an already acquired **local ext4 disk image** using `debugfs`, resolve the `/flag.jpg` symbolic link, and dump the target file without root/mount. | Original Go generator source is retained for contract validation. The integration test builds a synthetic ext4 filesystem with `mkfs.ext4` and an actual link inode. **NBD remote acquisition and JPEG text interpretation are not implemented**, so no real hosted Flag is claimed. |
+
+Original upstream source fixtures are in `data/fishy_client.py` and
+`data/nbd_forensics_main.go`. The original 5.8 MB public capture is
+downloaded only in CI from the same public upstream repository.
+
+```bash
+python -m pip install 'dpkt>=1.9.8,<2'
+python -m solvers.fishy_website /path/to/capture.pcapng data/fishy_client.py
+python -m solvers.nbd_forensics /path/to/local.ext4 /tmp/flag.jpg
+python -m unittest discover -s tests -v
+```
+
+The first command performs only offline packet analysis, with no callback
+connections or code execution. The second command uses the installed
+`debugfs` tool (e2fsprogs) to read a local filesystem image. Test input
+images are generated synthetically by the test suite; the user must obtain
+the original disk image separately if they want to extract a hosted flag.
+
+The two challenge IDs bring the project to **26 unique implementations**.
+Count Flag recovery separately from locally verified puzzle mechanics.
