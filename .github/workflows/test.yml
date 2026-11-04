@@ -15,6 +15,8 @@ jobs:
         run: python -m pip install 'cryptography>=42,<50'
       - name: Ensure PHP CLI is available
         run: command -v php || (sudo apt-get update && sudo apt-get install -y php-cli)
+      - name: Install ECB oracle dependency
+        run: python -m pip install 'pycryptodome>=3.20,<4'
       - name: Validate algorithm outputs
         run: python -m unittest discover -s tests -v
       - name: Print recovered flags
@@ -31,3 +33,5 @@ jobs:
           python -m solvers.corporate_cliche data/corporate_email_server.c data/corporate_email_server.elf.b64
           python -m solvers.clickme data/clickme_app.swift
           python -m solvers.philtered data/philtered
+          python -m solvers.crackme data/crackme.swift
+          python -m solvers.ecb_a_tron data/ecb_a_tron_main.py
