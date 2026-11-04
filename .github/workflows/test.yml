@@ -13,6 +13,8 @@ jobs:
           python-version: '3.12'
       - name: Install AES-GCM test dependency
         run: python -m pip install 'cryptography>=42,<50'
+      - name: Ensure PHP CLI is available
+        run: command -v php || (sudo apt-get update && sudo apt-get install -y php-cli)
       - name: Validate algorithm outputs
         run: python -m unittest discover -s tests -v
       - name: Print recovered flags
@@ -27,3 +29,5 @@ jobs:
           python -m solvers.loadme data/loadme_passwords.spm.b64
           python -m solvers.bilingual data/bilingual_published.py data/bilingual_helper.cpp
           python -m solvers.corporate_cliche data/corporate_email_server.c data/corporate_email_server.elf.b64
+          python -m solvers.clickme data/clickme_app.swift
+          python -m solvers.philtered data/philtered
