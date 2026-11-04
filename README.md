@@ -332,3 +332,35 @@ real challenge's public modulus.
 Cumulative: **20 distinct challenge solver implementations** with
 **12 recovered challenge flags** and **8 partial or offline/local-only
 exploit validations**, based on the verification scope in each phase.
+
+## Phase 11: Scrapbooking PNG reconstruction and Dualzip ZIP structure
+
+This phase adds two **new challenge IDs**, retaining the 20 previous solvers
+and 10 earlier test modules untouched. A separate
+`tests/test_phase11_solvers.py` contains 18 new tests.
+
+| Challenge | Original-data algorithm | Validation and limits |
+| --- | --- | --- |
+| Scrapbooking (misc) | Recover round-robin fixed-size blocks of multiple PNG files. Infer file count from PNG signatures, reconstruct individual streams, check all PNG chunk CRCs, trim after IEND. | Original generator contract and synthetic round-trip PNGs verified. The CI additionally downloads original public warped.png and reconstructs the original PNG images. **Reading the rendered images to report the original Flag remains a separate task**. |
+| Dualzip (misc) | Construct ZIP local/central headers, CRC32, EOCD, predictable SHA256 filename, and Unix symlink metadata for a synthetic two-stage split-volume archive. | Tested with Python zipfile and the original Flask application's extraction command strings. **Does not run 7z/unzip combination or recover the hosted Flag.** |
+
+### Run locally
+
+```bash
+python -m unittest discover -s tests -v
+python -m solvers.dualzip data/dualzip_app.py /tmp/ctf-dualzip-synthetic
+curl -fL https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
+python -m solvers.scrapbooking /tmp/ductf-warped.png /tmp/ductf-scrapbooking
+```
+
+The published Scrapbooking original merged binary is ~1.6 MB; the source
+algorithm is preserved as `data/scrapbooking_merge_images.py`. No expected
+Flag is embedded in either solver.
+
+The Dualzip fixture intentionally limits symlink targets to names under
+`/ctf-local-`, so this regression tests ZIP format behavior without loading
+privileged files. Actual exploit compatibility needs a separate authorized
+local environment with the challenge's unzip and 7z versions.
+
+Cumulative: **22 distinct challenge implementations**; **12 original Flag
+recoveries** and **10 partially proven or local-only reproductions**.
