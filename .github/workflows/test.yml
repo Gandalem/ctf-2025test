@@ -90,6 +90,8 @@ jobs:
           python -m solvers.sweet_treat data/sweet_treat/index.jsp data/sweet_treat/admin_review.jsp data/sweet_treat/edit_profile.jsp data/sweet_treat/Dockerfile
           python -m solvers.sodium data/sodium/rpc_server.py data/sodium/customer_routes.py data/sodium/pound.cfg data/sodium/Dockerfile
           python -m solvers.mary_lambda data/mary_lambda/main.tf
+          python -m solvers.sh_rsa data/sh_rsa/original_challenge.py
+          python -m solvers.blast data/blast/original_main.f90
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
