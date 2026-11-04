@@ -46,7 +46,7 @@ jobs:
           node-version: '22'
       - name: Install original Express 4 and Express 5 challenge packages
         run: |
-          npm install --prefix data/request_handling --no-audit --no-fund 'express@4' handlebars
+          npm install --prefix data/request_handling --no-audit --no-fund 'express@4' 'handlebars@4.7.8'
           npm install --prefix data/more_request_handling --no-audit --no-fund 'express@5' handlebars
       - name: Validate algorithm outputs
         env:
