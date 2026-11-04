@@ -88,6 +88,8 @@ jobs:
           python -m solvers.kick_the_bucket data/kick_the_bucket/s3_resource_policy.json data/kick_the_bucket/s3_presigned_url.txt
           python -m solvers.legendary data/legendary/original_solve.sh data/legendary/api.php data/legendary/index.php data/legendary/nginx.conf
           python -m solvers.sweet_treat data/sweet_treat/index.jsp data/sweet_treat/admin_review.jsp data/sweet_treat/edit_profile.jsp data/sweet_treat/Dockerfile
+          python -m solvers.sodium data/sodium/rpc_server.py data/sodium/customer_routes.py data/sodium/pound.cfg data/sodium/Dockerfile
+          python -m solvers.mary_lambda data/mary_lambda/main.tf
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
