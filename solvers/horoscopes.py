@@ -34,7 +34,18 @@ def parse_response(raw: bytes) -> tuple[int, str, str]:
     return status, meta, body.decode("utf-8")
 
 def links(body: str, current_url: str) -> list[str]:
-    return [urljoin(current_url, item.group(1)) for item in LINK.finditer(body)]
+    # urllib.parse.urljoin does not recognize the 'gemini' scheme as
+    # relative-URL-capable. Perform RFC 3986 joining with an equivalent
+    # hierarchical HTTPS base, then restore the Gemini scheme.
+    base = current_url.replace("gemini://", "https://", 1)
+    result = []
+    for item in LINK.finditer(body):
+        target = item.group(1).replace("gemini://", "https://", 1)
+        absolute = urljoin(base, target)
+        if absolute.startswith("https://"):
+            absolute = "gemini://" + absolute[len("https://"):]
+        result.append(absolute)
+    return result
 
 def crawl(start_url: str, request: Callable[[str], bytes], limit: int = 25) -> list[str]:
     """Breadth-first traversal of Gemini text/gemini pages on same host."""
