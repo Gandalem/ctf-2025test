@@ -544,3 +544,36 @@ No challenge Flag is embedded in either phase 16 solver. This stage proves
 the code evaluation mechanisms against local copies of the original source,
 but does **not** claim remote Flag retrieval. Cumulative distinct implemented
 challenge IDs: **32**; actual Flag recoveries remain **14**.
+
+## Phase 17: Kick the (S3) Bucket and legendary
+
+Two additional **non-duplicate DUCTF 2025 challenge IDs** with an isolated
+`tests/test_phase17_solvers.py` regression suite. The 32 earlier solver
+implementations and all 16 earlier Python unittest files remain unchanged.
+
+| Challenge | Distinct algorithm | Reproducible validation scope |
+| --- | --- | --- |
+| beginner/kick_the_bucket | Interpret the original AWS S3 resource policy's `aws:UserAgent` `StringLike` condition, demonstrate that a client-supplied `aws-sdk-go*` header satisfies it, parse SigV4 query parameters and check signed headers and expiry | Offline evaluation only using published policy and presigned URL. The original URL **expired on July 22, 2025**; user-agent matching does **not** imply that an expired signature or unauthenticated principal will be accepted by AWS. No network or hosted Flag accessed. |
+| web/legendary | Decode original double-URL-encoded API route from the author's solve.sh, inspect fields/SQL identifier transformation and generate HMAC-SHA256 signature using a **synthetic local key** | Reuses original `api.php` functions `db_escape_col` and `api_sig_gen` through PHP CLI, and verifies Python/PHP parity. This is a *partial local reproduction*, **not** a complete nginx path traversal + MariaDB SQL injection + Flag extraction. |
+
+Original public handout and configuration fixtures are stored in
+`data/kick_the_bucket/` and `data/legendary/`.
+The historical URL, including its expired 2025 presigned query parameters,
+is parsed but **never requested**. The author-provided `solve.sh` is
+treated strictly as unexecuted text.
+
+```bash
+python -m solvers.kick_the_bucket data/kick_the_bucket/s3_resource_policy.json data/kick_the_bucket/s3_presigned_url.txt
+python -m solvers.legendary data/legendary/original_solve.sh data/legendary/api.php data/legendary/index.php data/legendary/nginx.conf
+python -m unittest discover -s tests -v
+```
+
+Both algorithms use Python's standard library and the PHP CLI already
+available in the previous GitHub Actions workflow. The S3 logic intentionally
+reports only the resource policy's user-agent match, not a full IAM policy
+evaluation. The PHP parser intentionally uses the known archived CTF source
+and *does not connect to or modify a database*. Both original hosted
+Flag recoveries remain unverified.
+
+Cumulative: **34 distinct implemented challenge IDs**, including
+**14 Flag recoveries** and **20 partial/local/offline verifications**.
