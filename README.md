@@ -219,3 +219,43 @@ python -m unittest discover -s tests -v
 The extra dependency is required only for the test's local AES-ECB oracle.
 The core suffix-recovery algorithm does not require an AES library and can
 be wired to an authorized CTF service through a callback.
+
+## Phase 8: yet another login and Horoscopes
+
+Two distinct challenge IDs added without modifying any earlier 14 solver
+implementations or seven existing test modules.
+
+| Challenge | Solver | Validation boundary |
+| --- | --- | --- |
+| yet another login (crypto) | Paillier homomorphic bit-verification oracle, 256-bit MAC recovery, manual SHA-256 state continuation, public-key token forgery | **Original service's** locally instantiated TokenService accepted forged `user=admin` token; no hosted flag retrieved |
+| Horoscopes (beginner/misc) | Gemini `20 text/gemini` parser, relative link normalization and breadth-first same-host crawl of original .gmi handouts | Official DUCTF flag extracted from original Gemini capsule page |
+
+New tests in `tests/test_phase8_solvers.py` reuse the original fixtures in
+`data/yet_another_login_chall.py` and `data/horoscopes/`. They include
+positive / negative protocol cases, the original token service in a local
+test, and SHA-256 length-extension digests checked against hashlib.
+
+Commands:
+
+```bash
+python -m solvers.horoscopes data/horoscopes
+python -m solvers.yet_another_login data/yet_another_login_chall.py
+python -m unittest discover -s tests -v
+```
+
+Requirements: Python 3.10+ with the existing `pycryptodome` dependency
+to run the original CTF service's Paillier key generation. SHA-256 state
+continuation itself requires no external package. Running
+`yet_another_login.local_demo` executes only the trusted original published
+Python challenge fixture and uses its local verification oracle. Do not run
+untrusted problem files or use this reproduction against non-CTF systems.
+
+For Horoscopes, the original answer is visible in a distributed .gmi handout.
+No remote Gemini server was queried. The Gemini parser is reusable for
+other Gemini-transport CTF tasks, but the standalone CLI currently crawls
+local handout pages rather than opening a live TLS socket.
+
+Cumulative status: **16 unique implementations**. Of these, 11 derive
+published flags from original inputs and 5 establish a verified local
+exploit or recovered intermediate value; no hosted flags were claimed for
+those five local-only cases.

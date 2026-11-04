@@ -35,3 +35,5 @@ jobs:
           python -m solvers.philtered data/philtered
           python -m solvers.crackme data/crackme.swift
           python -m solvers.ecb_a_tron data/ecb_a_tron_main.py
+          python -m solvers.horoscopes data/horoscopes
+          python -m solvers.yet_another_login data/yet_another_login_chall.py
