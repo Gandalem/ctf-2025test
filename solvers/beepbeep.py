@@ -21,9 +21,16 @@ def read_wav(raw: bytes) -> tuple[int, "numpy.ndarray"]:
         channels = sound.getnchannels()
         sample_width = sound.getsampwidth()
         frames = sound.getnframes()
-        if channels != 1 or sample_width != 2 or sample_rate < 1000:
-            raise ValueError("Expected 16-bit mono audio with normal sample rate")
+        if channels not in (1, 2) or sample_width != 2 or sample_rate < 1000:
+            raise ValueError(
+                f"Expected 16-bit mono/stereo PCM, got "
+                f"channels={channels}, width={sample_width}, sample_rate={sample_rate}"
+            )
         samples = np.frombuffer(sound.readframes(frames), dtype="<i2").astype(np.float64)
+        if channels == 2:
+            # Published capture may contain two identical stereo channels.
+            # Average them to avoid treating each channel as a separate tone.
+            samples = samples.reshape(-1, 2).mean(axis=1)
     if not len(samples):
         raise ValueError("Empty audio")
     return sample_rate, samples
