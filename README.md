@@ -577,3 +577,38 @@ Flag recoveries remain unverified.
 
 Cumulative: **34 distinct implemented challenge IDs**, including
 **14 Flag recoveries** and **20 partial/local/offline verifications**.
+
+## Phase 18: Wiki and Sweet Treat
+
+Two further **distinct DownUnderCTF 2025 challenge IDs** with a new,
+independent `tests/test_phase18_solvers.py` containing 19 regression cases.
+All earlier 34 solver implementations and 17 previous unittest files are
+preserved unchanged. The existing `python -m unittest discover -s tests -v`
+CI invocation is reused.
+
+| Challenge | Reusable algorithm | What was actually verified |
+| --- | --- | --- |
+| beginner/wiki | Parse Gemini status/meta and Gemtext link syntax; resolve same-origin relative links, crawl breadth-first with loop detection, bounded pages and response size, locate Flag-shaped text | Original public Go crawler's logic was inspected; **synthetic in-memory Gemini capsule** is crawled to recover `DUCTF{SYNTHETIC_WIKI_FLAG}`. The real historical capsule and official hosted flag were NOT accessed. |
+| web/sweet_treat | Model same-origin browser cookie ordering by path length and creation time; demonstrate a simulated RFC2109-style `$Version=1` quoted cookie swallowing later HttpOnly cookies, and reflecting synthetic value through original JSP's unescaped `lang` attribute | Checked original public Tomcat 9 Dockerfile, `index.jsp`, `admin-review.jsp` and `edit_profile.jsp` source contracts. **Only a Python legacy-cookie-parser model**, not actual Tomcat or browser validation. No XSS bot, admin session or hosted flag accessed. |
+
+The original source inputs are in `data/wiki/` and `data/sweet_treat/`.
+The Wiki implementation also has a real Gemini-over-TLS fetcher that
+requires a valid TLS certificate and enforces response size/time bounds,
+but the regression tests do not issue network calls.
+
+```bash
+python -m unittest discover -s tests -v
+python -m solvers.sweet_treat data/sweet_treat/index.jsp data/sweet_treat/admin_review.jsp data/sweet_treat/edit_profile.jsp data/sweet_treat/Dockerfile
+# Only with an authorized Gemini server whose TLS certificate validates:
+python -m solvers.wiki gemini://example.org/ --max-pages 50
+```
+
+The two new modules rely only on the Python standard library. The published
+Wiki challenge flag in `challenge.yaml` is **not** loaded or hard-coded
+by the crawler. All Sweet Treat test markers are synthetic. These are
+local or partial validations, **not two more actual Flag recoveries**.
+
+Cumulative implementation coverage after phase 18: **36 / 63 unique
+challenge IDs** (14 published original Flag recoveries, 22 partial/local
+verifications). The remaining original challenge IDs have no counted
+implementation.
