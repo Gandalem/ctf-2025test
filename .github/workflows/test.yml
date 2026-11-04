@@ -27,7 +27,15 @@ jobs:
       - name: Run original Gomail Go integration tests
         working-directory: data/gomail/app
         run: go test -v ./...
+      - name: Install offline PCAP forensic reader
+        run: python -m pip install 'dpkt>=1.9.8,<2'
+      - name: Download original public DUCTF Fishy Website PCAP
+        run: |
+          curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/fishy_website/publish/capture.pcapng -o /tmp/ductf-fishy-capture.pcapng
+          test "$(wc -c </tmp/ductf-fishy-capture.pcapng)" -gt 1000000
       - name: Validate algorithm outputs
+        env:
+          DUCTF_FISHY_PCAP: /tmp/ductf-fishy-capture.pcapng
         run: python -m unittest discover -s tests -v
       - name: Print recovered flags
         run: |
@@ -54,6 +62,7 @@ jobs:
           python -m solvers.dualzip data/dualzip_app.py /tmp/ctf-dualzip-synthetic
           python -m solvers.gomail data/gomail/app/session/claims.go data/gomail/app/handlers.go
           python -m solvers.certvalidated data/certvalidated/certvalidated.py data/certvalidated/root.crt
+          python -m solvers.fishy_website /tmp/ductf-fishy-capture.pcapng data/fishy_client.py
       - name: Reconstruct original public Scrapbooking challenge image
         run: |
           curl -fsSL --retry 2 https://raw.githubusercontent.com/DownUnderCTF/Challenges_2025_Public/main/misc/scrapbooking/publish/warped.png -o /tmp/ductf-warped.png
