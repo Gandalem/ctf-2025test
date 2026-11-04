@@ -259,3 +259,36 @@ Cumulative status: **16 unique implementations**. Of these, 11 derive
 published flags from original inputs and 5 establish a verified local
 exploit or recovered intermediate value; no hosted flags were claimed for
 those five local-only cases.
+
+## Phase 9: Godot tile-font extraction and secure email attachments
+
+Two new distinct challenge IDs, with existing 16 solver implementations and
+eight previous test modules unchanged. The new independent suite is
+`tests/test_phase9_solvers.py` (16 tests); all run through the original CI.
+
+| Challenge | Algorithm | Verified result |
+| --- | --- | --- |
+| godot | Parse original GDScript `Vector2i(x,y)` placements; group 5-row pixel glyphs, decode visual font, parse DUCTF text | Official Flag reconstructed from original source |
+| secure email attachments | Reproduce exact original Go string checks, `ReplaceAll`, Unix `Clean`/`Join` and directory traversal; read a synthetic file in an isolated temporary directory | **Local path traversal with synthetic flag verified**. Hosted flag not fetched |
+
+Original challenge files are copied to
+`data/godot_tile_map_layer.gd` and
+`data/secure_email_attachments_main.go`. No answer-bearing source or actual
+secret file was used for the Go challenge; the solver creates a disposable
+dummy path and marker. The Godot decoder uses individual glyph templates,
+rather than embedding the complete expected Flag string.
+
+Run:
+
+```bash
+python -m solvers.godot_tiles data/godot_tile_map_layer.gd
+python -m solvers.secure_email_attachments data/secure_email_attachments_main.go
+python -m unittest discover -s tests -v
+```
+
+Both new solvers need only the Python standard library. The Go path model
+is specific to Unix path semantics and is not a substitute for full Go/gin
+HTTP-server integration; the real challenge's remote endpoint was not tested.
+
+Cumulative status: **18 unique challenge implementations**; **12 actual
+published flags recovered** and **6 partial/offline/local exploit validations**.
