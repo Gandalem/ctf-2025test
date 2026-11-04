@@ -74,8 +74,9 @@ class FishyTests(unittest.TestCase):
         output = io.BytesIO()
         writer = dpkt.pcapng.Writer(output)
         writer.writepkt(bytes(frame))
+        captured_bytes = output.getvalue()
         writer.close()
-        self.assertEqual(fishy.solve(output.getvalue(), self.source), marker.decode())
+        self.assertEqual(fishy.solve(captured_bytes, self.source), marker.decode())
 
     def test_reject_source_without_key(self):
         with self.assertRaises(ValueError):
