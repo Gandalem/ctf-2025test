@@ -159,3 +159,34 @@ python -m unittest discover -s tests -v
 **Requirements:** Python 3.10+, a Linux runner that can execute the original
 x86-64 ELF, OpenSSL/Vim/GCC and the cryptography dependency already used in CI.
 The bilingual solver itself uses only Python standard library.
+
+## Phase 6: ClickMe and philtered
+
+Two new, non-duplicate challenges are added. Previously implemented ten
+solvers and five prior test files remain unchanged. New tests reside only in
+`tests/test_phase6_solvers.py`, and the same GitHub Actions workflow runs all.
+
+| Challenge | Algorithm | Verification |
+| --- | --- | --- |
+| SwiftPasswordManager: ClickMe | Parse original Swift UI source and invert index-based XOR on the disabled Flag button bytes | Official DUCTF flag recovered directly from original source |
+| philtered | Execute original PHP index/layout with ordered mass-assignment query and php://filter Base64 source wrapper | Controlled local source disclosure of synthetic marker (no hosted flag claimed) |
+
+Inputs under `data/` are copies of original public challenge source files.
+The original flag.php file was NOT bundled. The philtered solver makes a
+temporary synthetic flag.php fixture, tests that the vulnerable PHP app
+discloses the synthetic value, then deletes the temporary files.
+
+Commands:
+
+```bash
+python -m solvers.clickme data/clickme_app.swift
+python -m solvers.philtered data/philtered
+python -m unittest discover -s tests -v
+```
+
+Dependencies: Python 3.10+, PHP CLI for the philtered offline reproduction;
+the existing requirements used by prior phases remain necessary. Never run
+untrusted PHP challenge sources without isolation. Full cumulative count:
+12 unique implemented challenges; 9 recovered flags, and 3 verified partial or
+local exploit milestones (mini-me API key, corporate-cliche local admin
+session, philtered synthetic secret disclosure).
