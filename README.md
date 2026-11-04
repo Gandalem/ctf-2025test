@@ -292,3 +292,43 @@ HTTP-server integration; the real challenge's remote endpoint was not tested.
 
 Cumulative status: **18 unique challenge implementations**; **12 actual
 published flags recovered** and **6 partial/offline/local exploit validations**.
+
+## Phase 10: Stonks and Speak Friend, and Enter
+
+Two newly implemented challenges, no repetition of the existing eighteen
+solver files or nine earlier test modules. The new test file
+`tests/test_phase10_solvers.py` contains 16 cases and reuses the existing
+`data/` fixture convention and GitHub Actions test workflow.
+
+| Challenge | Algorithm | Precisely verified outcome |
+| --- | --- | --- |
+| beginner/stonks | Replay an older valid signed Flask session cookie during conversion GBP -> IDR, inflating the server-side balance | **Original Flask app** run through `test_client` with temporary synthetic FLAG: threshold exceeded after three replayed conversions and synthetic marker rendered |
+| crypto/speak-friend-and-enter | AES-CMAC final-block algebra to produce a fresh 2048-bit public-key modulus with the original fixed CMAC | Original public-key CMAC and size checks bypassed offline; RSA private key factorization/signing NOT completed |
+
+### Running
+
+```bash
+python -m pip install 'Flask==3.1.1' 'pycryptodome>=3.20,<4'
+python -m solvers.stonks data/stonks/stonks.py data/stonks/templates
+python -m solvers.speak_friend_enter data/speak_friend_server.py
+python -m unittest discover -s tests -v
+```
+
+The original challenge files are maintained under `data/stonks/` and
+`data/speak_friend_server.py`; their actual hosted flags are not stored in
+the solvers. Tests are restricted to original public CTF code and synthetic
+local verification. The source is executed or analyzed in a local test runner;
+do not import untrusted Python challenge files.
+
+The **Stonks algorithm is validated against the real original route handlers
+and Flask session implementation**, not just a simulated formula. The CMAC
+cryptographic forgery is validated against the handout's original target MAC.
+A full RSA signature bypass also requires the ability to compute a private
+exponent for the forged 2048-bit modulus, which this implementation does not
+do. The synthetic RSA signing unit test uses a separate freshly generated
+key solely to confirm signature-check semantics; it is not an attack on the
+real challenge's public modulus.
+
+Cumulative: **20 distinct challenge solver implementations** with
+**12 recovered challenge flags** and **8 partial or offline/local-only
+exploit validations**, based on the verification scope in each phase.
