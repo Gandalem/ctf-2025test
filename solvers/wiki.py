@@ -11,6 +11,7 @@ tests construct a fake capsule and recover a SYNTHETIC marker. A published
 challenge.yaml flag is not used by the solver.
 """
 import argparse
+import posixpath
 import re
 import socket
 import ssl
@@ -18,7 +19,7 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
-from urllib.parse import urljoin, urlsplit, urldefrag
+from urllib.parse import urlsplit, urldefrag
 
 FLAG_PATTERN = re.compile(r"DUCTF\{[^\s{}]{1,160}\}")
 
@@ -68,9 +69,21 @@ def links_from_gemtext(text: str, base_url: str) -> list[str]:
             continue
         raw = match.group(1)
         try:
-            result.append(canonical_url(urljoin(base_url, raw)))
-        except ValueError:
-            # Ignore unsupported links to HTTP, mailto, malformed addresses.
+            if raw.startswith("gemini://"):
+                target = raw
+            elif "://" in raw or raw.startswith("//"):
+                continue
+            else:
+                base = urlsplit(canonical_url(base_url))
+                if raw.startswith("/"):
+                    new_path = raw
+                elif raw.startswith("?"):
+                    new_path = (base.path or "/") + raw
+                else:
+                    new_path = posixpath.join(posixpath.dirname(base.path or "/"), raw)
+                target = f"gemini://{base.hostname}:{base.port}{new_path}"
+            result.append(canonical_url(target))
+        except (ValueError, TypeError):
             pass
     return result
 
