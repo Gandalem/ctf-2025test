@@ -504,3 +504,43 @@ under a temporary directory, never on the public service.
 This phase raises the cumulative count to **30 unique implemented challenge
 IDs**. The published Flag recovery count remains **14**; these two additions
 are local-only/partial progress pending complete challenge reproduction.
+
+## Phase 16: Request Handling and More Request Handling
+
+Two additional, distinct DUCTF 2025 challenge IDs:
+`web/request_handling` (Express **4**, structured-query AST injection)
+and `web/more_request_handling` (Express **5**, request-object Handlebars
+function gadget). The earlier 30 solvers and 15 Python test modules are
+unchanged. New regressions are in `tests/test_phase16_solvers.py` and
+`tests/phase16_node_case.js`.
+
+| Challenge | Mechanism | Reproducibility boundary |
+| --- | --- | --- |
+| Request Handling | Express 4's extended query parser interprets nested `x[type]`/`x[body]` parameters as a JS object; Handlebars.compile interprets that object as a Program AST and emits a NumberLiteral expression. | Local original application compiled from the published Dockerfile heredoc. A thrown synthetic error marker demonstrates unexpected JS evaluation, with no shell command or real Flag read. |
+| More Request Handling | Express 5 passes the `req` object to a Handlebars string template; nested `with` helpers and app.set/EventEmitter.listenerCount build a callable Function constructor gadget. | Original published Express 5 source on a local ephemeral port. A harmless marker throws when code evaluation is reached. No external targets or hosted Flag retrieval. |
+
+Tests install exactly the Express major versions indicated in the original
+Dockerfiles. For the Express 4 AST case, Handlebars is pinned to **4.7.8**
+(the vulnerable version available when the 2025 challenge shipped). Modern
+Handlebars **4.7.9+** added validation for the NumberLiteral AST value and
+blocks this original specific payload; the regression deliberately installs
+4.7.8 only within the isolated challenge fixture to reproduce 2025 behavior.
+Do not use this vulnerable version in a production application. The Node test adapter extracts the
+*original app.js* source from each Dockerfile and replaces only
+`app.listen(8000,...)` with an export so it can bind to
+`127.0.0.1` on an ephemeral port. A successful browser/request result
+must include the unique benign marker in a 500 error response; 200 responses
+to ordinary templates serve as negative controls.
+
+```bash
+npm install --prefix data/request_handling 'express@4' 'handlebars@4.7.8'
+npm install --prefix data/more_request_handling 'express@5' handlebars
+python -m unittest discover -s tests -v
+python -m solvers.request_handling data/request_handling/Dockerfile
+python -m solvers.more_request_handling data/more_request_handling/Dockerfile
+```
+
+No challenge Flag is embedded in either phase 16 solver. This stage proves
+the code evaluation mechanisms against local copies of the original source,
+but does **not** claim remote Flag retrieval. Cumulative distinct implemented
+challenge IDs: **32**; actual Flag recoveries remain **14**.
